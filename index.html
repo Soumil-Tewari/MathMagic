@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+  <script src="https://unpkg.com/ml5@0.7.1/dist/ml5.min.js"></script>
+
+</head>
+<body>
+    <script>
+let video;
+
+
+
+let detector;
+let detections = [];
+
+function preload() {
+  
+  detector = ml5.objectDetector('cocossd');
+}
+
+function gotDetections(error, results) {
+  if (error) {
+    console.error(error);
+  }
+  detections = results;
+  
+  let utterance = new SpeechSynthesisUtterance(results[0].label+"ahead");
+  speechSynthesis.speak(utterance);
+  setTimeout(function(){detector.detect(video, gotDetections);}
+,700)
+  
+
+}
+
+function setup() {
+  createCanvas(640, 480);
+  video = createCapture(VIDEO);
+  video.size(640, 480);
+  video.hide();
+  detector.detect(video, gotDetections);
+    strokeWeight(1);
+}
+
+
+function draw() {
+  image(video, 0, 0);
+
+  for (let i = 0; i < detections.length; i++) {
+    let object = detections[i];
+    
+    let c = color(0, 255, 0);
+    if (object.label == "person")
+      c = color(0, 0, 255);
+    stroke(c);
+    c.setAlpha(30);
+    fill(c)
+    rect(object.x, object.y, object.width, object.height);
+    noStroke();
+    fill(255);
+    textSize(24);
+    text(object.label, object.x + 10, object.y + 24);
+  }
+}
+</script>
+</body>
+</html>
